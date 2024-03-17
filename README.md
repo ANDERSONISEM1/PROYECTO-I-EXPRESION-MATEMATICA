@@ -24,7 +24,7 @@ Esta clase representa la interfaz gráfica principal de la aplicación "expresi�
 - Se utiliza el patrón de diseño MVC (Modelo-Vista-Controlador) para separar la lógica de la aplicación de la interfaz gráfica.
 - La interfaz gráfica se construye utilizando componentes de `javax.swing` y se organiza en un diseño de cuadrícula para una mejor visualización de los campos y botones.
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 # Recorrido Preorden
 
 Esta clase proporciona métodos para convertir expresiones infija a preorden.
