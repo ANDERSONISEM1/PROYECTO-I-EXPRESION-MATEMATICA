@@ -65,25 +65,6 @@ Esta función verifica si un carácter dado es un operador válido.
 
 Esta función devuelve la precedencia de un operador dado.
 
-## Uso
-
-La clase puede ser utilizada para convertir expresiones infix a preorden. Por ejemplo:
-
-```java
-public static void main(String[] args) {
-    Scanner scanner = new Scanner(System.in);
-    System.out.print("Ingrese la expresión :");
-    String infixExpression = scanner.nextLine();
-    
-    // Convertir la expresión infija a postfija
-    String postfixExpression = infixToPostfix(infixExpression);
-    
-    // Convertir la expresión postfija a preorden y mostrarla
-    String preorderExpression = postfixToPreorder(postfixExpression);
-    System.out.println("Expresión en preorden: " + preorderExpression);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 # Convertidor y evaluador de expresiones en Java
 
@@ -112,8 +93,6 @@ Este programa Java convierte una expresión matemática en notación infija a no
 2. Ingresar la expresión matemática en notación infija cuando se solicite.
 3. El programa mostrará la expresión en notación postfija y el resultado de la evaluación.
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 # Clase RECORRIDOINORDEN
 
@@ -151,7 +130,7 @@ Este método recibe una cadena de texto que representa una expresión matemátic
 **Retorno:**
 - `double`: El resultado de la evaluación de la expresión matemática.
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 # Clases y métodos
 
 ## Clase `Nodo`
@@ -176,7 +155,7 @@ Este método recibe una cadena de texto que representa una expresión matemátic
   - `private int precedencia(char operador)`: Determina la precedencia de un operador.
   - `private void dibujarArbol(Graphics g, Nodo nodo, int x, int y, int espacio)`: Dibuja el árbol de expresión en un objeto Graphics.
   - `public void dibujar(Graphics g, int width, int height)`: Método público para dibujar el árbol de expresión en un panel.
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 # Árbol de Expresión Matemática
 
 Este proyecto en Java permite ingresar un ejercicio matemático y construir un árbol de expresión a partir de él, mostrando el árbol gráficamente.
