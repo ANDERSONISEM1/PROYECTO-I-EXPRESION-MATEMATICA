@@ -94,7 +94,7 @@ Este programa Java convierte una expresión matemática en notación infija a no
 3. El programa mostrará la expresión en notación postfija y el resultado de la evaluación.
 
 
-# Clase RECORRIDOINORDEN
+# Clase RECORRIDO INORDEN
 
 Esta clase contiene métodos para convertir una expresión matemática de notación infija a notación postfija, convertir la expresión postfija a notación infija y evaluar la expresión matemática.
 
