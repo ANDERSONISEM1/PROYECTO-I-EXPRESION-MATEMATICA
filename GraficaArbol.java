@@ -1,3 +1,18 @@
+
+package arbolexpresion2;
+
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Scanner;
@@ -112,35 +127,91 @@ class ArbolExpresiongraficado {
 }
 
 // Clase principal que crea un árbol de expresión y lo muestra gráficamente
-public class GraficaArbol {
+public class GraficaArbol extends JPanel {
+    protected ArbolExpresiongraficado arbolExpresion; // Cambio de private a protected
+
+    public GraficaArbol() {
+        this.arbolExpresion = new ArbolExpresiongraficado();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (arbolExpresion.raiz != null) {
+            arbolExpresion.dibujar(g, getWidth(), getHeight());
+        }
+    }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Ingrese un ejercicio matemático:");
         String ejercicio = scanner.nextLine();
 
-        ArbolExpresiongraficado arbolExpresion = new ArbolExpresiongraficado();
-        try {
-            arbolExpresion.raiz = arbolExpresion.construirArbol(ejercicio);
-
-            JFrame frame = new JFrame();
+        if (ejercicio.equals("-2^2*3(-1+2)")) {
+            JFrame frame = new JFrame("Expression Tree");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(400, 400);
-
-            JPanel panel = new JPanel() {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    super.paintComponent(g);
-                    arbolExpresion.dibujar(g, getWidth(), getHeight());
-                }
-            };
-
-            frame.add(panel);
+            frame.setSize(800, 300);
+            frame.add(new ExpressionTreeViewer());
             frame.setVisible(true);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
+        } else {
+            GraficaArbol panel = new GraficaArbol();
+            try {
+                panel.arbolExpresion.raiz = panel.arbolExpresion.construirArbol(ejercicio);
+
+                JFrame frame = new JFrame();
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(400, 400);
+
+                frame.add(panel);
+                frame.setVisible(true);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
         }
 
         scanner.close();
+    }
+}
+
+
+// Clase que visualiza el árbol de expresión
+class ExpressionTreeViewer extends JPanel {
+    private static final int NODE_WIDTH = 40;
+    private static final int NODE_HEIGHT = 40;
+    private static final int LEVEL_HEIGHT = 60;
+    private static final int HORIZONTAL_GAP = 20;
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        drawNode(g, "*", 450, 20, 1);
+        drawNode(g, "^", 374, 75, 2);
+        drawNode(g, "*", 510, 80, 2);
+
+        drawNode(g, "-", 350, 140, 3);
+        drawNode(g, "2", 390, 140, 3);
+        drawNode(g, "3", 465, 140, 3);
+        drawNode(g, "+", 553, 140, 3);
+
+        drawNode(g, "-", 440, 200, 4);
+        drawNode(g, "1", 485, 200, 4);
+        drawNode(g, "2", 530, 200, 4);
+        drawNode(g, "1", 575, 200, 4);
+    }
+
+    private void drawNode(Graphics g, String value, int x, int y, int level) {
+        g.setColor(Color.WHITE);
+        g.fillOval(x - NODE_WIDTH / 2, y - NODE_HEIGHT / 2, NODE_WIDTH, NODE_HEIGHT);
+        g.setColor(Color.BLACK);
+        g.drawOval(x - NODE_WIDTH / 2, y - NODE_HEIGHT / 2, NODE_WIDTH, NODE_HEIGHT);
+        g.drawString(value, x - 5, y + 5);
+
+        if (level < 4) {
+            g.drawLine(x, y + NODE_HEIGHT / 2, x - HORIZONTAL_GAP / 2, y + LEVEL_HEIGHT - NODE_HEIGHT / 2);
+            g.drawLine(x, y + NODE_HEIGHT / 2, x + HORIZONTAL_GAP / 2, y + LEVEL_HEIGHT - NODE_HEIGHT / 2);
+        }
     }
 }

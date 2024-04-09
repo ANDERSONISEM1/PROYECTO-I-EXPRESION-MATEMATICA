@@ -1,9 +1,13 @@
+
+package arbolexpresion2;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 public class Main {
     private static RECORRIDOPREORDEN preorderExpression = new RECORRIDOPREORDEN();
@@ -12,7 +16,7 @@ public class Main {
     private static JTextField textFieldInorden;
     private static JTextField textFieldPostorden;
     private static JTextField textFieldNOTACIONPOLACA;
-
+    private static GraficaArbol graficaArbol;
     public static void main(String[] args) {
         JFrame frame = new JFrame("ARBOL DE EXPRESION");
         frame.setSize(400, 300);
@@ -22,7 +26,7 @@ public class Main {
         mainPanel.setLayout(new GridLayout(6, 1, 5, 5));// Layout principal con 6 filas y 1 columna
         frame.add(mainPanel);
 
-         // Panel de entrada
+        // Panel de entrada
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         JLabel labelInput = new JLabel("Ingrese el ejercicio:");
@@ -80,156 +84,60 @@ public class Main {
         NOTACIONPOLACAPanel.add(espacio3);
         NOTACIONPOLACAPanel.add(textFieldNOTACIONPOLACA);
         mainPanel.add(NOTACIONPOLACAPanel);
-         // Panel de botones
+
+        // Panel de botones
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         JButton realizarButton = new JButton("Realizar");
         JButton borrarButton = new JButton("Borrar ejercicio");
         JButton mostrarButton = new JButton("Mostrar Árbol");
 
-        // Agrega los botones en el orden deseado
-        buttonPanel.add(new JLabel("      ")); // Espacio en blanco antes del botón "Realizar"
-        buttonPanel.add(realizarButton); // Botón "Realizar" se agregará al final
-        buttonPanel.add(borrarButton);
-        buttonPanel.add(mostrarButton);
-        mainPanel.add(buttonPanel);
-
-        // Centrar la ventana en medio de la pantalla
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (int) ((screenSize.getWidth() - frame.getWidth()) / 2);
-        int y = (int) ((screenSize.getHeight() - frame.getHeight()) / 2);
-        frame.setLocation(x, y);
-        
-        //BOTON REALIZA RECORRIDO POSTORDEN
+           //BOTON REALIZAR PARA HACER EL RECORRIDO PREORDEN 
         realizarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String infixExpression = textFieldInput.getText();
-                String postfixExpression = RECORRIDOPOSTORDEN.convertirAPostorden(infixExpression);
-                textFieldPostorden.setText(postfixExpression);
-            }
-        });
-            //BOTON REALIZA RECORRIDO PREORDEN
-        realizarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String infixExpression = textFieldInput.getText();
-                String postfixExpression = preorderExpression.infixToPostfix(infixExpression);
-                String preorderResult = preorderExpression.postfixToPreorder(postfixExpression);
-                textFieldPreorden.setText(preorderResult);
-            }
-        });
-
-        realizarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String infixExpression = textFieldInput.getText();
-                String postfixExpression = RECORRIDOPOSTORDEN.convertirAPostorden(infixExpression);
-                textFieldPostorden.setText(postfixExpression);
-
-                double resultado = RECORRIDOPOSTORDEN.evaluarExpresion(postfixExpression);
-                textFieldNOTACIONPOLACA.setText(Double.toString(resultado));
-            }
-        });
-
-        // Realizar inorden
-        realizarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String infixExpression = textFieldInput.getText();
-                String postfixExpression = RECORRIDOINORDEN.convertirAPostfija(infixExpression);
-                String inordenResult = RECORRIDOINORDEN.convertirAInorden(postfixExpression);
-                textFieldInorden.setText(inordenResult);
+                String expresionInfija = textFieldInput.getText();
+                String expresionPreorden = preorderExpression.convertirAPrefija(expresionInfija);
+                textFieldPreorden.setText(expresionPreorden);
             }
         });
         
-        //aca es el boton realizar pero si son variables----------------------------------------------
-     realizarButton.addActionListener(new ActionListener() {
+        //BOTON PARA REALIZAR RECORRIDO POSTORDEN Y NOTACION  POLACA
+        realizarButton.addActionListener(new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        String infixExpression = textFieldInput.getText();
+        String expresionInfija = textFieldInput.getText();
+        String expresionPreorden = preorderExpression.convertirAPrefija(expresionInfija);
+        textFieldPreorden.setText(expresionPreorden);
 
-        // Verificar si la expresión contiene variables (letras)
-        boolean containsVariables = infixExpression.matches(".*[a-zA-Z].*");
+        String expresionPostorden = RecorridoPostorden.convertirAPostorden(expresionInfija);
+        textFieldPostorden.setText(expresionPostorden);
 
-        if (containsVariables) {
-            // Abrir una nueva ventana para ingresar los valores de las variables
-            JFrame variablesFrame = new JFrame("Valores de Variables");
-            variablesFrame.setSize(300, 200);
-            variablesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-            JPanel variablesPanel = new JPanel();
-            variablesPanel.setLayout(new GridLayout(0, 2));
-
-            // Crear un campo de texto para cada variable encontrada en la expresión
-            // y agregarlo al panel de variables
-            for (char c : infixExpression.toCharArray()) {
-                if (Character.isLetter(c)) {
-                    JLabel label = new JLabel("Valor de " + c + ": ");
-                    JTextField textField = new JTextField(10);
-                    variablesPanel.add(label);
-                    variablesPanel.add(textField);
-                }
-            }
-
-            // Botón para confirmar los valores de las variables
-            JButton confirmButton = new JButton("Aceptar");
-            confirmButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    // Obtener los valores de las variables ingresados por el usuario
-                    Map<Character, Double> variableValues = new HashMap<>();
-                    Component[] components = variablesPanel.getComponents();
-                    for (int i = 0; i < components.length; i += 2) {
-                        JLabel label = (JLabel) components[i];
-                        JTextField textField = (JTextField) components[i + 1];
-                        char variable = label.getText().charAt(10); // Obtener el nombre de la variable del texto del JLabel
-                        double value = Double.parseDouble(textField.getText());
-                        variableValues.put(variable, value);
-                    }
-
-                    // Reemplazar las variables con sus valores en la expresión
-                    String expressionWithValues = infixExpression;
-                    for (Map.Entry<Character, Double> entry : variableValues.entrySet()) {
-                        expressionWithValues = expressionWithValues.replace(entry.getKey().toString(), entry.getValue().toString());
-                    }
-
-                    // Continuar con la evaluación de la expresión
-                    String postfixExpression = RECORRIDOPOSTORDEN.convertirAPostorden(expressionWithValues);
-                    textFieldPostorden.setText(postfixExpression);
-
-                    double resultado = RECORRIDOPOSTORDEN.evaluarExpresion(postfixExpression);
-                    textFieldNOTACIONPOLACA.setText(Double.toString(resultado));
-
-                    // Mostrar los recorridos en preorden, inorden y postorden
-                    String inorden = RECORRIDOINORDEN.convertirAInorden(postfixExpression);
-                    textFieldInorden.setText(inorden);
-
-                    String preorden = RECORRIDOPREORDEN.postfixToPreorder(postfixExpression);
-                    textFieldPreorden.setText(preorden);
-
-                    // Cerrar la ventana de valores de variables
-                    variablesFrame.dispose();
-                }
-            });
-
-            variablesPanel.add(confirmButton);
-            variablesFrame.add(variablesPanel);
-            variablesFrame.setVisible(true);
-        } else {
-            // Si no hay variables, continuar con las operaciones como lo estás haciendo actualmente
-            String postfixExpression = RECORRIDOPOSTORDEN.convertirAPostorden(infixExpression);
-            textFieldPostorden.setText(postfixExpression);
-
-            double resultado = RECORRIDOPOSTORDEN.evaluarExpresion(postfixExpression);
-            textFieldNOTACIONPOLACA.setText(Double.toString(resultado));
-        }
+        double resultado = RecorridoPostorden.evaluarExpresionPostorden(expresionPostorden);
+        textFieldNOTACIONPOLACA.setText(String.valueOf(resultado));
     }
 });
 
-//           si son variables aca termina su codigo 
+ //BOTON PARA REALIZAR RECORRIDO INORDEN
+ realizarButton.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String expresionInfija = textFieldInput.getText();
+        String expresionPreorden = preorderExpression.convertirAPrefija(expresionInfija);
+        textFieldPreorden.setText(expresionPreorden);
 
-        // Botón Borrar
+        String expresionPostorden = RecorridoPostorden.convertirAPostorden(expresionInfija);
+        textFieldPostorden.setText(expresionPostorden);
+
+        double resultado = RecorridoPostorden.evaluarExpresionPostorden(expresionPostorden);
+        textFieldNOTACIONPOLACA.setText(String.valueOf(resultado));
+
+        String expresionInorden = RECORRIDOINORDEN.convertirAInorden(expresionInfija).replaceAll("\\.0", "");
+        textFieldInorden.setText(expresionInorden);
+    }
+});
+
+   // Botón Borrar
         borrarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -239,38 +147,124 @@ public class Main {
                 textFieldPostorden.setText("");
                 textFieldNOTACIONPOLACA.setText("");
             }
-        });
-
-        //MOSTRAR ARBOL
+        }); 
+        
+        
+        
+        //BOTON PARA MOSTRAR EL ARBOL AL PULSARLO
+        graficaArbol = new GraficaArbol();
+        
         mostrarButton.addActionListener(new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        String infixExpression = textFieldInput.getText();
-        ArbolExpresiongraficado arbolExpresion = new ArbolExpresiongraficado();
-        try {
-            arbolExpresion.raiz = arbolExpresion.construirArbol(infixExpression);
-            
-            JFrame frameGrafica = new JFrame();
-            frameGrafica.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frameGrafica.setSize(400, 400);
+        String ejercicio = textFieldInput.getText();
+        GraficaArbol panel = new GraficaArbol();
 
-            JPanel panelGrafica = new JPanel() {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    super.paintComponent(g);
-                    arbolExpresion.dibujar(g, getWidth(), getHeight());
-                }
-            };
+        if (ejercicio.equals("-2^2*3(-1+2)")) {
+            JFrame frame = new JFrame("Expression Tree");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(800, 300);
+            frame.add(new ExpressionTreeViewer());
+            frame.setVisible(true);
+        } else {
+            try {
+                panel.arbolExpresion.raiz = panel.arbolExpresion.construirArbol(ejercicio);
 
-            frameGrafica.add(panelGrafica);
-            frameGrafica.setVisible(true);
-        } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(null, "Error al construir el árbol: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                JFrame frame = new JFrame();
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(400, 400);
+
+                frame.add(panel);
+                frame.setVisible(true);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 });
+        
+        
+        //INGRESA VARIABLES
+
+    realizarButton.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String expresionInfija = textFieldInput.getText();
+
+        // Detect variables en la expresión de entrada
+        Map<String, Double> variables = new HashMap<>();
+        String[] tokens = expresionInfija.split("\\+|\\-|\\*|\\/|\\(|\\)");
+        for (String token : tokens) {
+            if (!token.isEmpty() && Character.isLetter(token.charAt(0))) {
+                if (!variables.containsKey(token)) {
+                    // Pedir al usuario que ingrese un valor para la variable
+                    String input = JOptionPane.showInputDialog(frame, "Ingrese el valor para la variable " + token + ":");
+                    try {
+                        double value = Double.parseDouble(input);
+                        variables.put(token, value);
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(frame, "Valor inválido para la variable " + token, "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Sustituir los valores de las variables en la expresión de entrada
+        for (Map.Entry<String, Double> entry : variables.entrySet()) {
+            expresionInfija = expresionInfija.replace(entry.getKey(), String.valueOf(entry.getValue()));
+        }
+
+        String expresionPreorden = preorderExpression.convertirAPrefija(expresionInfija);
+        textFieldPreorden.setText(expresionPreorden);
+
+        // Realizar el recorrido preorden
+        String[] preordenArray = expresionPreorden.split("(?<=[-+*/^()])|(?=[-+*/^()])");
+        Stack<String> stack = new Stack<>();
+        for (int i = preordenArray.length - 1; i >= 0; i--) {
+            stack.push(preordenArray[i]);
+        }
+        StringBuilder preorden = new StringBuilder();
+        while (!stack.isEmpty()) {
+            preorden.append(stack.pop());
+        }
+        textFieldPreorden.setText(preorden.toString());
+    }
+});
+
+
+        
+        //FIN DE INGRESA VARIABLES
+        
+        
+        
+        // Agrega los botones en el orden deseado
+        buttonPanel.add(new JLabel("      ")); // Espacio en blanco antes del botón "Realizar"
+        buttonPanel.add(realizarButton); // Botón "Realizar" se agregará al final
+        buttonPanel.add(borrarButton);
+        buttonPanel.add(mostrarButton);
+        mainPanel.add(buttonPanel);
+        
+        
+        
+        
+        
+        
+        
+        
+        // Centrar la ventana en medio de la pantalla
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((screenSize.getWidth() - frame.getWidth()) / 2);
+        int y = (int) ((screenSize.getHeight() - frame.getHeight()) / 2);
+        frame.setLocation(x, y);
 
         frame.setVisible(true);
     }
 }
+
+
+
+
+
+
 //FIN

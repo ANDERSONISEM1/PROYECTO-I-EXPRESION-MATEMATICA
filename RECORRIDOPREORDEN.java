@@ -1,47 +1,77 @@
-import java.util.*;
 
-// Clase para convertir expresiones infix a preorder
+package arbolexpresion2;
+
+import java.util.Scanner;
+import java.util.Stack;
+
+
 public class RECORRIDOPREORDEN {
-    
-    // Función para verificar si un carácter es un operador
-    private static boolean isOperator(char c) {
-        return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Ingrese la expresión en notación infija: ");
+        String expresionInfija = scanner.nextLine();
+        String expresionPrefija = convertirAPrefija(expresionInfija);
+        System.out.println("Expresión en notación prefija: " + expresionPrefija);
+        scanner.close();
     }
 
-    // Función para convertir una expresión infija a postfija
-    static String infixToPostfix(String infix) {
-        StringBuilder postfix = new StringBuilder();
-        Stack<Character> stack = new Stack<>();
-        
-        // Iterar sobre cada carácter de la expresión infija
-        for (char c : infix.toCharArray()) {
-            if (Character.isDigit(c)) { // Si es un dígito, añadirlo directamente al resultado
-                postfix.append(c);
-            } else if (c == '(') { // Si es un paréntesis izquierdo, añadirlo a la pila
-                stack.push(c);
-            } else if (c == ')') { // Si es un paréntesis derecho, sacar elementos de la pila hasta encontrar el paréntesis izquierdo
-                while (!stack.isEmpty() && stack.peek() != '(') {
-                    postfix.append(stack.pop());
-                }
-                stack.pop(); // Sacar el paréntesis izquierdo
-            } else if (isOperator(c)) { // Si es un operador
-                // Sacar elementos de la pila con mayor o igual precedencia y luego añadir el operador actual
-                while (!stack.isEmpty() && precedence(stack.peek()) >= precedence(c)) {
-                    postfix.append(stack.pop());
-                }
-                stack.push(c);
+    public static String convertirAPrefija(String expresionInfija) {
+        // Invertir la expresión infija
+        StringBuilder expresionInvertida = new StringBuilder(expresionInfija).reverse();
+
+        // Reemplazar paréntesis
+        for (int i = 0; i < expresionInvertida.length(); i++) {
+            if (expresionInvertida.charAt(i) == '(') {
+                expresionInvertida.setCharAt(i, ')');
+            } else if (expresionInvertida.charAt(i) == ')') {
+                expresionInvertida.setCharAt(i, '(');
             }
         }
-        // Sacar elementos restantes de la pila y añadirlos al resultado
-        while (!stack.isEmpty()) {
-            postfix.append(stack.pop());
-        }
-        return postfix.toString();
+
+        // Convertir a postfija
+        String expresionPostfija = convertirAPostfija(expresionInvertida.toString());
+
+        // Invertir la expresión postfija para obtener la prefija
+        return new StringBuilder(expresionPostfija).reverse().toString();
     }
 
-    // Función para obtener la precedencia de un operador
-    private static int precedence(char op) {
-        switch (op) {
+    public static String convertirAPostfija(String expresionInfija) {
+        Stack<Character> operadores = new Stack<>();
+        StringBuilder expresionPostfija = new StringBuilder();
+
+        for (int i = 0; i < expresionInfija.length(); i++) {
+            char caracter = expresionInfija.charAt(i);
+
+            if (Character.isLetterOrDigit(caracter)) {
+                expresionPostfija.append(caracter);
+            } else if (caracter == '(') {
+                operadores.push(caracter);
+            } else if (caracter == ')') {
+                while (!operadores.isEmpty() && operadores.peek() != '(') {
+                    expresionPostfija.append(operadores.pop());
+                }
+                if (!operadores.isEmpty() && operadores.peek() != '(') {
+                    return "Expresión inválida";
+                } else {
+                    operadores.pop();
+                }
+            } else {
+                while (!operadores.isEmpty() && precedencia(caracter) <= precedencia(operadores.peek())) {
+                    expresionPostfija.append(operadores.pop());
+                }
+                operadores.push(caracter);
+            }
+        }
+
+        while (!operadores.isEmpty()) {
+            expresionPostfija.append(operadores.pop());
+        }
+
+        return expresionPostfija.toString();
+    }
+
+    public static int precedencia(char operador) {
+        switch (operador) {
             case '+':
             case '-':
                 return 1;
@@ -50,39 +80,8 @@ public class RECORRIDOPREORDEN {
                 return 2;
             case '^':
                 return 3;
-            default:
-                return 0;
         }
+        return -1;
     }
-
-    // Función para convertir una expresión postfija a preorden
-    static String postfixToPreorder(String postfix) {
-        Stack<String> stack = new Stack<>();
-        
-        // Iterar sobre cada carácter de la expresión postfija
-        for (char c : postfix.toCharArray()) {
-            if (Character.isDigit(c)) { // Si es un dígito, añadirlo a la pila como cadena
-                stack.push(String.valueOf(c));
-            } else if (isOperator(c)) { // Si es un operador, sacar los dos operandos anteriores, unirlos con el operador y añadir el resultado a la pila
-                String operand2 = stack.pop();
-                String operand1 = stack.pop();
-                stack.push(c + operand1 + operand2);
-            }
-        }
-        return stack.pop(); // El último elemento en la pila es la expresión en preorden
-    }
-
-    // Función principal
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingrese la expresión :");
-        String infixExpression = scanner.nextLine();
-        
-        // Convertir la expresión infija a postfija
-        String postfixExpression = infixToPostfix(infixExpression);
-        
-        // Convertir la expresión postfija a preorden y mostrarla
-        String preorderExpression = postfixToPreorder(postfixExpression);
-        System.out.println("Expresión en preorden: " + preorderExpression);
-    }
+    
 }
